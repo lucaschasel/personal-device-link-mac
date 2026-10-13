@@ -10,7 +10,9 @@ result = subprocess.run(
 )
 print(result.stdout, end="")
 if result.returncode:
-    tail = result.stdout[-12000:]
+    # GitHub truncates annotation messages; put assertion failures before logs.
+    failure = result.stdout.split("\nfailures:\n", 1)
+    tail = failure[1][:3000] if len(failure) == 2 else result.stdout[-3000:]
     escaped = tail.replace("%", "%25").replace("\r", "%0D").replace("\n", "%0A")
     print(f"::error title=Rust test failure::{escaped}")
 sys.exit(result.returncode)
